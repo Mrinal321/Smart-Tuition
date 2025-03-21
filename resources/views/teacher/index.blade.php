@@ -107,7 +107,7 @@
                         $str = ($item->total_star / $item->star_count);
                         $number = ceil($str); // Calculate the rounded average
                     }
-                    echo(round($str, 1));
+                    echo number_format($str, 1); // Always shows 1 digit after the decimal point
                 @endphp
                 
                 <div class="flex justify-center">
@@ -119,9 +119,6 @@
                         @endif
                     @endfor
                 </div>
-                @php
-                    echo($item->total_star);
-                @endphp
             </div>
 
             <!-- View Profile Button -->

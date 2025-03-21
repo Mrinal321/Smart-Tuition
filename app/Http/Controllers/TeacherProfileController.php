@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Teacher;
+use App\Models\User;
 use App\Models\Schedule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -78,6 +79,7 @@ class TeacherProfileController extends Controller
 
     public function update(Request $request){
         $teacher = Teacher::findOrFail($request->id); // Find or return 404 if not found
+        $user = User::findOrFail($teacher->user_teacher_id);
 
         $request->validate([
             'name' => 'nullable|string|max:255',
@@ -85,7 +87,8 @@ class TeacherProfileController extends Controller
             'profile_picture' => 'nullable|image|mimes:jpg,png,jpeg|max:2048',
         ]);
 
-        $data = $request->only(['name', 'university_name']); // Get only the required fields
+        $data = $request->only(['name', 'university_name', 'social_media_link']); // Get only the required fields
+        $data2 = $request->only(['name']);
 
         // Handle profile picture update
         if ($request->hasFile('profile_picture')) {
@@ -96,6 +99,7 @@ class TeacherProfileController extends Controller
         }
 
         $teacher->update($data); // Update only specified fields
+        $user->update($data2); //Update also user name
 
         return redirect()->route('teacher.index');
     }

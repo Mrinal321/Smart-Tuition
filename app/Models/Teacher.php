@@ -22,4 +22,14 @@ class Teacher extends Model
         'social_media_link',
         'user_teacher_id',
     ];
+
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class);
+    }
+
+    public function voters()
+    {
+        return $this->belongsToMany(User::class, 'ratings', 'teacher_id', 'user_id');
+    }
 }

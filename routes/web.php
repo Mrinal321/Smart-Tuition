@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\TeacherProfileController;
+use App\Http\Controllers\RatingController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -37,6 +38,8 @@ Route::get('/teacher/{id}/profile', [TeacherProfileController::class, 'profile']
 // Route::post('/teachers/{teacher}/comments', [::class, 'store'])->name('comments.store');
 Route::get('teachers/{id}/edit', [TeacherProfileController::class, 'edit'])->name('teacher.edit');
 Route::put('teacher/{id}/update', [TeacherProfileController::class, 'update'])->name('teacher.update');
+
+Route::post('/teachers/{teacher}/rate', [RatingController::class, 'rateTeacher'])->name('teachers.rate')->middleware(['auth', 'verified']);
 
 
 require __DIR__.'/auth.php';

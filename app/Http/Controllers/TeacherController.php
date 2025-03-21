@@ -39,34 +39,34 @@ class TeacherController extends Controller
         return view('teacher.index', compact('teachers', 'universities', 'departments', 'university', 'department'));
     }
 
-    public function rate(Request $request, $id){
-        // Ensure the user is logged in
-        if (!auth()->check()) {
-            return redirect()->route('login')->with('error', 'You must be logged in to rate a teacher.');
-        }
+    // public function rate(Request $request, $id){
+    //     // Ensure the user is logged in
+    //     if (!auth()->check()) {
+    //         return redirect()->route('login')->with('error', 'You must be logged in to rate a teacher.');
+    //     }
 
-        // Validate the rating
-        $request->validate([
-            'star' => 'required|integer|min:1|max:5',
-        ]);
+    //     // Validate the rating
+    //     $request->validate([
+    //         'star' => 'required|integer|min:1|max:5',
+    //     ]);
 
-        $teacher = Teacher::findOrFail($id);
-        $user = auth()->user();
+    //     $teacher = Teacher::findOrFail($id);
+    //     $user = auth()->user();
 
-        // Check if the user has already rated this teacher
-        if ($teacher->voters()->where('user_id', $user->id)->exists()) {
-            return redirect()->back()->with('error', 'You have already rated this teacher.');
-        }
+    //     // Check if the user has already rated this teacher
+    //     if ($teacher->voters()->where('user_id', $user->id)->exists()) {
+    //         return redirect()->back()->with('error', 'You have already rated this teacher.');
+    //     }
 
-        // Add the rating to the pivot table
-        $teacher->voters()->attach($user->id, ['star' => $request->star]);
+    //     // Add the rating to the pivot table
+    //     $teacher->voters()->attach($user->id, ['star' => $request->star]);
 
-        // Update the teacher's total_star and count
-        $teacher->total_star += $request->star;
-        $teacher->count += 1;
-        $teacher->save();
+    //     // Update the teacher's total_star and count
+    //     $teacher->total_star += $request->star;
+    //     $teacher->count += 1;
+    //     $teacher->save();
 
-        return redirect()->back()->with('success', 'Thank you for your rating!');
-    }
+    //     return redirect()->back()->with('success', 'Thank you for your rating!');
+    // }
 
 }
