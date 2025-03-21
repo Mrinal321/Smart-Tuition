@@ -24,7 +24,7 @@
                 $teacherID = $teachers->firstWhere('user_teacher_id', auth()->id())?->id;
             @endphp
             @if ($isUserPresent)
-                <a class="btn success" href="{{route('schedules.create', $teacherID)}}">Set Event</a>
+                {{-- <a class="btn success" href="{{route('schedules.create', $teacherID)}}">Set Event</a> --}}
                 <a class="btn success" href="{{route('teacher.edit', $teacherID)}}">Update Profile - {{ Auth::user()->name }} <span class="sr-only">(current)</span></a>
             @else
                 <a class="btn success" href="{{route('teacher.create')}}">Enroll as a Teacher - {{ Auth::user()->name }} <span class="sr-only">(current)</span></a>
@@ -85,39 +85,54 @@
     <h1 class="text-center mb-4">Teachers List</h1>
     <div class="row g-4">
         @foreach($teachers as $item)
-            <div href="{{route('teacher.create')}}" class="col-md-4 col-sm-6">
-                <div class="card teacher-card">
-                    <div class="card-body">
-                        <h5 class="card-title">Name: {{ $item->name }}</h5>
-                        <p class="card-text"><strong>University: </strong> {{ $item->university_name }}</p>
-                        <p class="card-text"><strong>Department:</strong> {{ $item->department_name }}</p>
-                        <img src="{{ asset('uploads/teacherprofile/'.$item->profile_picture)}}" width="100px" height="70px" alt="Image">
-                        <!-- Display Average Rating -->
-                        <p>Average Rating:
-                            @php
-                                $number = 0; $str = 0;
-                                if($item->star_count > 0){
-                                    $str = ($item->total_star / $item->star_count);
-                                    $number = ceil($str); // Calculate the rounded average
-                                }
-                                echo(round($str, 1));
-                            @endphp
-                            <br>
-                            @for ($i = 1; $i <= 5; $i++)
-                                @if ($i <= $number)
-                                    <span class="fa fa-star checked" style="color: gold;"></span> <!-- Filled star -->
-                                @else
-                                    <span class="fa fa-star" style="color: gray;"></span> <!-- Empty star -->
-                                @endif
-                            @endfor
-                        </p>
-
-                        <a class="btn btn-primary" href="{{route('teacher.profile', $item->id)}}" >View Profile</a><br>
-
-                    </div>
-                </div>
+    <div class="col-md-4 col-sm-6 mb-4">
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+            <!-- Profile Picture -->
+            <div class="flex justify-center p-4">
+                <img src="{{ asset('uploads/teacherprofile/'.$item->profile_picture) }}" alt="Profile Picture" class="w-32 h-32 rounded-full object-cover border-4 border-blue-500">
             </div>
-        @endforeach
+            <!-- Name -->
+            <h5 class="text-xl font-bold text-center text-gray-800 px-4">{{ $item->name }}</h5>
+            <div class="text-center">
+                <!-- University -->
+                <p class="text-muted"><i class="fas fa-university"></i> {{ $item->university_name }}</p>
+                <!-- Department -->
+                <p class="text-muted"><i class="fas fa-graduation-cap"></i> {{ $item->department_name }}</p>  
+            </div>
+            <!-- Average Rating -->
+            <div class="text-center">
+                @php
+                    $number = 0; $str = 0;
+                    if($item->star_count > 0){
+                        $str = ($item->total_star / $item->star_count);
+                        $number = ceil($str); // Calculate the rounded average
+                    }
+                    echo(round($str, 1));
+                @endphp
+                
+                <div class="flex justify-center">
+                    @for ($i = 1; $i <= 5; $i++)
+                        @if ($i <= $number)
+                            <span class="text-yellow-400">★</span> <!-- Filled star -->
+                        @else
+                            <span class="text-gray-300">★</span> <!-- Empty star -->
+                        @endif
+                    @endfor
+                </div>
+                @php
+                    echo($item->total_star);
+                @endphp
+            </div>
+
+            <!-- View Profile Button -->
+            <div class="text-center p-4">
+                <a href="{{ route('teacher.profile', $item->id) }}" class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    View Profile
+                </a>
+            </div>
+        </div>
+    </div>
+@endforeach
     </div>
 
     {{-- <div class="d-flex justify-content-center mt-4">

@@ -16,6 +16,12 @@ class TeacherProfileController extends Controller
     }
 
     public function store(Request $request){
+        $existingTeacher = Teacher::where('user_teacher_id', auth()->id())->first();
+
+        if ($existingTeacher) {
+            return redirect()->back()->with('error', 'You can only create one teacher profile.');
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'university_name' => 'required|string|max:255',
@@ -52,7 +58,7 @@ class TeacherProfileController extends Controller
             $teacher->university_id_image = $filename;
         }
         
-    
+        $teacher->user_teacher_id = auth()->id();
         $teacher->save();
     
         return redirect()->back()->with('status', 'Teacher profile added successfully!');
@@ -71,26 +77,27 @@ class TeacherProfileController extends Controller
     }
 
     public function update(Request $request){
-        $teacher = Teacher::find($request->id);
+        $teacher = Teacher::findOrFail($request->id); // Find or return 404 if not found
 
-        $teacher->name = $request->input('name');
-        $teacher->university = $request->input('university');
-        $teacher->department = $request->input('department');
-        $teacher->total_star = 0;
-        $teacher->count = 0;
-        $teacher->vote = 0;
-        // Handle file upload
-        if ($request->hasFile('image')) {
-            $file = $request->file('image');
+        $request->validate([
+            'name' => 'nullable|string|max:255',
+            'university_name' => 'nullable|string|max:255',
+            'profile_picture' => 'nullable|image|mimes:jpg,png,jpeg|max:2048',
+        ]);
+
+        $data = $request->only(['name', 'university_name']); // Get only the required fields
+
+        // Handle profile picture update
+        if ($request->hasFile('profile_picture')) {
+            $file = $request->file('profile_picture');
             $filename = time() . '.' . $file->getClientOriginalExtension();
-            $file->move('uploads/teachers/', $filename);
-            $teacher->image = $filename;
+            $file->move('uploads/teacherprofile/', $filename);
+            $data['profile_picture'] = $filename;
         }
 
-        $teacher->user_teacher_id = auth()->id();
-        $teacher->save();
+        $teacher->update($data); // Update only specified fields
 
-        return redirect()->route('index');
+        return redirect()->route('teacher.index');
     }
 
 }

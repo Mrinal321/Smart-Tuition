@@ -18,7 +18,7 @@
 
             <!-- Average Rating -->
             <div class="mb-2">
-                <p class="mb-1"><strong>Average Rating:</strong> 
+                <p class="mb-1"><strong></strong> 
                     @php
                         $number = 0; $str = 0;
                         if($item->star_count > 0){
@@ -46,13 +46,31 @@
                 @endif
             </div>
 
-            <!-- University ID -->
-            <div class="mt-4">
-                <h5 class="text-secondary">University ID</h5>
-                <img src="{{ asset('uploads/universityid/'.$item->university_id_image) }}" 
-                     class="border border-secondary rounded" 
-                     width="150px" height="100px" alt="University ID">
-            </div>
+            <!-- Check if User Can Rate -->
+            @if(auth()->check() && !$item->voters->contains(auth()->id()))
+                <form action="{{ route('teachers.rate', $item->id) }}" method="POST">
+                    @csrf
+                    <label for="rating">Rate this teacher:</label>
+                    <div id="rating">
+                        @for ($i = 1; $i <= 5; $i++)
+                            <label>
+                                <input type="radio" name="star" value="{{ $i }}" style="display: none;">
+                                <i class="fa fa-star"
+                                onclick="this.closest('form').submit()"
+                                style="cursor: pointer; color: gray;"
+                                onmouseover="this.style.color='gold'"
+                                onmouseout="this.style.color='gray'"></i>
+                            </label>
+                        @endfor
+                    </div>
+                </form>
+            @else
+                @if(auth()->check())
+                    <p>You have already rated this teacher.</p>
+                @else
+                    <p><a href="{{ route('login') }}">Login</a> to rate this teacher.</p>
+                @endif
+            @endif
         </div>
     </div>
 </div>

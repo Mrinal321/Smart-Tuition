@@ -20,5 +20,6 @@ class Teacher extends Model
         'email',
         'phone_number',
         'social_media_link',
+        'user_teacher_id',
     ];
 }
