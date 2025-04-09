@@ -38,8 +38,9 @@ class CourseController extends Controller
         // Redirect to the courses index page for the teacher
         return redirect()->route('courses.index')->with('success', 'Course created successfully!');
     }
-    public function edit(Course $course)
+    public function edit(Request $request, $id)
     {
+        $course = Course::findOrFail($id);
         return view('courses.edit', compact('course'));
     }
     public function update(Request $request, Course $course)
@@ -55,7 +56,7 @@ class CourseController extends Controller
 
         $course->update($request->all());
 
-        return redirect()->route('teachers.courses.index', $course->teacher_id)->with('success', 'Course updated successfully!');
+        return redirect()->route('courses.index')->with('success', 'Course updated successfully!');
     }
     public function destroy(Course $course)
     {

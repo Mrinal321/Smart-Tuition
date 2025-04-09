@@ -13,18 +13,104 @@
             @php
                 $isTeacher = $teachers->pluck('user_teacher_id')->contains(auth()->id());
                 $teacherID = $teachers->firstWhere('user_teacher_id', auth()->id())?->id;
+                $teacherCourses = $courses->where('teacher_id', $teacherID);
             @endphp
             @if ($isTeacher)
-                <div class="mt-4">
-                    <a href="{{ route('courses.create', $teacherID) }}" class="btn btn-primary btn-lg px-4">
-                        <i class="bi bi-plus-circle me-2"></i> Create New Course
+                <!-- Courses Grid -->
+                <div class="text-center py-5">
+                    <h5 class="btn btn-info">Your Courses ({{ $teacherCourses->count() }})</h5>
+                    <a href="{{ route('courses.create', $teacherID) }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Create New Course
                     </a>
                 </div>
+                <div class="row g-4">
+                    @foreach($teacherCourses as $course)
+                    
+                        <div class="col-lg-4 col-md-6">
+                            <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
+                                <!-- Course Image Placeholder (you can add actual course images) -->
+                                <div class="card-img-top bg-gradient-primary" style="height: 60px; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);">
+                                    <div class="h-100 d-flex align-items-center justify-content-center">
+                                        <h3 class="text-white mb-0">{{ $course->course_name}}</h3>
+                                    </div>
+                                </div>
+                                
+                                
+                                <div class="card-body">
+                                    <!-- Course Description -->
+                                    <p class="card-text text-muted mb-4">{{ Str::limit($course->description, 100) }}</p>
+                            
+                                    <!-- Author Info -->
+                                    <div class="d-flex align-items-center mb-3">
+                                        <img src="{{ asset('uploads/teacherprofile/' . $course->teacher->profile_picture) }}" 
+                                            alt="{{ $course->teacher->name }}" 
+                                            class="rounded-circle me-2" 
+                                            width="32" height="32">
+                                        <h4 class="text-muted">Author: {{ $course->teacher->name }}</h4>
+                                    </div>
+                                    
+                                    <!-- Price Badge -->
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <span class="badge bg-light text-primary fs-6">
+                                            ${{ number_format($course->updated_fee, 2) }}
+                                            @if($course->discount > 0)
+                                                <small class="text-decoration-line-through text-danger ms-1">
+                                                    ${{ number_format($course->original_fee, 2) }}
+                                                </small>
+                                            @endif
+                                        </span>
+                                        <span class="badge bg-success bg-opacity-10 text-success">
+                                            <i class="bi bi-people-fill me-1"></i> 24 students
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div class="card-footer bg-transparent border-0 pt-0 pb-3 px-2">
+                                    <div class="row g-2">
+                                        <!-- View Details Button -->
+                                        <div class="col-8 pe-1">
+                                            <a href="{{ route('courses.show', $course->id) }}" 
+                                               class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center hover-effect">
+                                               <i class="bi bi-eye-fill me-2"></i> View Details
+                                            </a>
+                                        </div>
+                                        
+                                        <!-- Edit Button -->
+                                        <div class="col-4 ps-1">
+                                            <a href="{{ route('courses.edit', $course->id) }}" 
+                                               class="btn btn-outline-success w-100 d-flex align-items-center justify-content-center hover-effect"
+                                               title="Edit Course">
+                                               <i class="bi bi-pencil-fill"></i>
+                                               <span class="d-none d-sm-inline ms-2">Edit</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <style>
+                                    .hover-effect {
+                                        transition: all 0.2s ease;
+                                    }
+                                    .hover-effect:hover {
+                                        transform: translateY(-1px);
+                                        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                                    }
+                                </style>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+                
             @endif
         @endauth
     </div>
 
-    <!-- Courses Grid -->
+    <!-- Courses Grid --> 
+    @if(!$courses->isEmpty())
+    <div class="text-center py-5">
+        <h5 class="btn btn-info">Available Courses ({{ $courses->count() }})</h5>
+    </div>
+    @endif
     <div class="row g-4">
         @foreach($courses as $course)
         <div class="col-lg-4 col-md-6">
@@ -33,25 +119,22 @@
                 <div class="card-img-top bg-gradient-primary" style="height: 60px; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);">
                     <div class="h-100 d-flex align-items-center justify-content-center">
                         <h3 class="text-white mb-0">{{ $course->course_name}}</h3>
-                        <h5 class="text-white mb-0"> Auther: {{ $course->course_name}}</h5>
                     </div>
                 </div>
                 
+                   
                 <div class="card-body">
+                    <!-- Course Description -->
+                    <p class="card-text text-muted mb-4">{{ Str::limit($course->description, 100) }}</p>
+            
                     <!-- Author Info -->
                     <div class="d-flex align-items-center mb-3">
                         <img src="{{ asset('uploads/teacherprofile/' . $course->teacher->profile_picture) }}" 
                              alt="{{ $course->teacher->name }}" 
                              class="rounded-circle me-2" 
                              width="32" height="32">
-                        <small class="text-muted">By {{ $course->teacher->name }}</small>
+                        <h4 class="text-muted">Author: {{ $course->teacher->name }}</h4>
                     </div>
-                    
-                    <!-- Course Title -->
-                    <h5 class="card-title fw-bold">{{ $course->course_name }}</h5>
-                    
-                    <!-- Course Description -->
-                    <p class="card-text text-muted mb-4">{{ Str::limit($course->description, 100) }}</p>
                     
                     <!-- Price Badge -->
                     <div class="d-flex justify-content-between align-items-center mb-3">

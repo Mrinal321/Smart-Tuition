@@ -124,9 +124,9 @@
                     </div>
                     <div class="col-md-6 d-flex align-items-center">
                         <div class="w-100 text-center py-4">
-                            <button class="btn btn-primary btn-lg px-5 py-3 shadow">
+                            <a href="{{ route('sslcommerz.payment') }}" class="btn btn-primary btn-lg px-5 py-3 shadow text-decoration-none">
                                 <i class="bi bi-cart-check me-2"></i> Enroll Now
-                            </button>
+                            </a>
                             <p class="small text-muted mt-2 mb-0">30-day money back guarantee</p>
                         </div>
                     </div>

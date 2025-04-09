@@ -48,9 +48,11 @@ Route::get('/courses', [CourseController::class, 'index'])->name('courses.index'
 Route::get('/courses/{course}', [CourseController::class, 'show'])->name('courses.show');
 Route::get('/courses/{teacher_id}/create', [CourseController::class, 'create'])->name('courses.create');
 Route::post('/courses', [CourseController::class, 'store'])->name('courses.store');
+Route::get('courses/{id}/edit', [CourseController::class, 'edit'])->name('courses.edit');
+Route::put('courses/{course}/update', [CourseController::class, 'update'])->name('courses.update');
 
 // SSLCOMMERZ Start
-Route::get('/example1', [SslCommerzPaymentController::class, 'exampleEasyCheckout']);
+Route::get('/example1', [SslCommerzPaymentController::class, 'exampleEasyCheckout'])->name('sslcommerz.payment');;
 Route::get('/example2', [SslCommerzPaymentController::class, 'exampleHostedCheckout']);
 
 Route::post('/pay', [SslCommerzPaymentController::class, 'index']);
