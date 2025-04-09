@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CourseController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SslCommerzPaymentController;
 use App\Http\Controllers\TeacherController;
@@ -41,6 +42,12 @@ Route::get('teachers/{id}/edit', [TeacherProfileController::class, 'edit'])->nam
 Route::put('teacher/{id}/update', [TeacherProfileController::class, 'update'])->name('teacher.update');
 
 Route::post('/teachers/{teacher}/rate', [RatingController::class, 'rateTeacher'])->name('teachers.rate')->middleware(['auth', 'verified']);
+
+// Course routes
+Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
+Route::get('/courses/{course}', [CourseController::class, 'show'])->name('courses.show');
+Route::get('/courses/{teacher_id}/create', [CourseController::class, 'create'])->name('courses.create');
+Route::post('/courses', [CourseController::class, 'store'])->name('courses.store');
 
 // SSLCOMMERZ Start
 Route::get('/example1', [SslCommerzPaymentController::class, 'exampleEasyCheckout']);
