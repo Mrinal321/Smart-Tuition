@@ -32,4 +32,9 @@ class Teacher extends Model
     {
         return $this->belongsToMany(User::class, 'ratings', 'teacher_id', 'user_id');
     }
+
+    public function events()
+    {
+        return $this->hasMany(Event::class);
+    }
 }

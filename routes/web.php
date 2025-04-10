@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SslCommerzPaymentController;
 use App\Http\Controllers\TeacherController;
@@ -50,6 +51,12 @@ Route::get('/courses/{teacher_id}/create', [CourseController::class, 'create'])-
 Route::post('/courses', [CourseController::class, 'store'])->name('courses.store');
 Route::get('courses/{id}/edit', [CourseController::class, 'edit'])->name('courses.edit');
 Route::put('courses/{course}/update', [CourseController::class, 'update'])->name('courses.update');
+
+//events routes
+// Route::resource('events', EventController::class);
+Route::get('/events', [EventController::class, 'index'])->name('events.index');
+Route::get('/events/create/{id}', [EventController::class, 'create'])->name('events.create');
+Route::post('/events/store', [EventController::class, 'store'])->name('events.store');
 
 // SSLCOMMERZ Start
 Route::get('/example1', [SslCommerzPaymentController::class, 'exampleEasyCheckout'])->name('sslcommerz.payment');;
