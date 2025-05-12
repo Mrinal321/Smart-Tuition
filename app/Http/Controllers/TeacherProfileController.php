@@ -100,8 +100,8 @@ class TeacherProfileController extends Controller
 
         $teacher->update($data); // Update only specified fields
         $user->update($data2); //Update also user name
-
-        return redirect()->route('teacher.index');
+        
+        return view('teacher.edit', compact('teacher'));
     }
 
 }
