@@ -69,7 +69,7 @@
     </div>
 </div>
 
-<!-- Filter Form -->
+<!-- Filter & Search Form -->
 <div class="container mb-5">
     <div class="card shadow-sm">
         <div class="card-body">
@@ -103,11 +103,20 @@
                             <i class="bi bi-funnel-fill me-1"></i> Filter
                         </button>
                     </div>
+
+                    <!-- Search by Name -->
+                    <div class="col-md-12 mt-3 position-relative">
+                        <input type="text" name="teacher_name" id="teacher_name" class="form-control" 
+                            placeholder="Enter teacher name..." value="{{ request('teacher_name') }}">
+                        <ul id="teacherNameList" class="list-group position-absolute w-100" style="z-index:1000; display:none;"></ul>
+                    </div>
+
                 </div>
             </form>
         </div>
     </div>
 </div>
+
 
 <!-- Teachers List -->
 <div class="container mb-5">
@@ -190,12 +199,11 @@
     <i class="bi bi-arrow-up"></i>
 </button>
 
-<!-- JavaScript Enhancements -->
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Back to Top Button
     const backToTopButton = document.getElementById('backToTop');
-    
     window.addEventListener('scroll', function() {
         if (window.pageYOffset > 300) {
             backToTopButton.classList.remove('d-none');
@@ -203,21 +211,18 @@ document.addEventListener('DOMContentLoaded', function() {
             backToTopButton.classList.add('d-none');
         }
     });
-    
     backToTopButton.addEventListener('click', function() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
     // Teacher Card Hover Effect
     const teacherCards = document.querySelectorAll('.teacher-card');
-    
     teacherCards.forEach(card => {
         card.addEventListener('mouseenter', function() {
             this.style.transform = 'translateY(-5px)';
             this.style.transition = 'transform 0.2s ease, box-shadow 0.2s ease';
             this.style.boxShadow = '0 10px 20px rgba(0,0,0,0.1)';
         });
-        
         card.addEventListener('mouseleave', function() {
             this.style.transform = '';
             this.style.boxShadow = '';
@@ -227,11 +232,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Filter Form Submission with Loading Indicator
     const filterForm = document.getElementById('filterForm');
     const teachersContainer = document.getElementById('teachersContainer');
-    
-    if(filterForm && teachersContainer) {
+    if (filterForm && teachersContainer) {
         filterForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            
             // Show loading state
             teachersContainer.innerHTML = `
                 <div class="col-12 text-center py-5">
@@ -241,7 +244,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     <p class="mt-2">Finding matching teachers...</p>
                 </div>
             `;
-            
             // Submit form via AJAX
             fetch(this.action + '?' + new URLSearchParams(new FormData(this)), {
                 headers: {
@@ -266,8 +268,81 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+    // --- Autocomplete / Search by Name with Picture & Redirect ---
+    const teacherInput = document.getElementById('teacher_name');
+    const teacherList = document.getElementById('teacherNameList');
+
+    if (teacherInput) {
+        teacherInput.addEventListener('input', function() {
+            const query = this.value.trim();
+            if (query.length < 1) {
+                teacherList.style.display = 'none';
+                teacherList.innerHTML = '';
+                return;
+            }
+
+            fetch("{{ route('teacher.autocomplete') }}?q=" + encodeURIComponent(query))
+                .then(response => response.json())
+                .then(data => {
+                    teacherList.innerHTML = '';
+                    if (data.length > 0) {
+                        data.forEach(item => {
+                            const li = document.createElement('li');
+                            li.classList.add('list-group-item', 'list-group-item-action', 'd-flex', 'align-items-center');
+                            li.style.cursor = 'pointer';
+                            li.dataset.id = item.id;
+
+                            // Small circular profile picture
+                            const img = document.createElement('img');
+                            img.src = '/uploads/teacherprofile/' + item.profile_picture; // Adjust path if needed
+                            img.alt = item.name;
+                            img.classList.add('rounded-circle', 'me-2');
+                            img.style.width = '30px';
+                            img.style.height = '30px';
+                            img.style.objectFit = 'cover';
+
+                            const span = document.createElement('span');
+                            span.textContent = item.name;
+
+                            li.appendChild(img);
+                            li.appendChild(span);
+
+                            li.addEventListener('click', function() {
+                                window.location.href = '/teacher/' + item.id + '/profile';
+                            });
+
+                            teacherList.appendChild(li);
+                        });
+                        teacherList.style.display = 'block';
+                    } else {
+                        teacherList.style.display = 'none';
+                    }
+                })
+                .catch(error => console.error('Autocomplete error:', error));
+        });
+
+        // Press Enter to go to first suggestion
+        teacherInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const firstItem = teacherList.querySelector('li');
+                if (firstItem) {
+                    window.location.href = '/teacher/' + firstItem.dataset.id + '/profile';
+                }
+            }
+        });
+
+        // Close autocomplete if clicked outside
+        document.addEventListener('click', function(e) {
+            if (!teacherInput.contains(e.target) && !teacherList.contains(e.target)) {
+                teacherList.style.display = 'none';
+            }
+        });
+    }
 });
 </script>
+
 
 <style>
     .bg-gradient-primary {

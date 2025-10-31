@@ -10,11 +10,12 @@
                     <div class="row align-items-center">
                         <!-- Profile Picture Column -->
                         <div class="col-md-4 text-center">
-                            <div class="profile-picture-container mb-4">
+                            <div class="profile-picture-container mb-4 position-relative" style="display:inline-block;">
                                 <img src="{{ asset('uploads/teacherprofile/'.$item->profile_picture) }}" 
                                      alt="{{ $item->name }}" 
-                                     class="profile-picture circle">
-                                <div class="verification-badge">
+                                     class="profile-picture circle border border-3 border-primary" 
+                                     style="width:150px; height:150px; object-fit:cover; border-radius:50%;">
+                                <div class="verification-badge position-absolute top-0 start-100 translate-middle" style="font-size:1.5rem; color:#28a745;">
                                     <i class="fas fa-check-circle"></i>
                                 </div>
                             </div>
@@ -61,6 +62,11 @@
                                     <i class="fas fa-graduation-cap me-2 text-primary"></i>
                                     <span>{{ $item->department_name }}</span>
                                 </div>
+                                <!-- Message Button aligned with Email/Call/Profile -->
+                                <div class="d-flex align-items-center mb-3" style="gap:0.5rem;">
+                                    <input type="text" class="form-control" placeholder="Message Here" style="flex:1; min-width:0;">
+                                    <button class="btn btn-success">Send</button>
+                                </div>
                                 
                                 <div class="d-flex flex-wrap gap-3 mt-3">
                                     <a href="mailto:{{ $item->email }}" class="btn btn-sm btn-outline-primary">
@@ -79,7 +85,6 @@
                             
                             <!-- Rating Section -->
                             <div class="rating-section mt-4 pt-3 border-top">
-                                <!-- Check if User Can Rate -->
                                 @if(auth()->check() && !$item->voters->contains(auth()->id()))
                                     <form action="{{ route('teachers.rate', $item->id) }}" method="POST">
                                         @csrf
@@ -108,7 +113,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Additional Info Footer -->
                 <div class="card-footer bg-light">
                     <div class="row text-center">
@@ -133,196 +138,25 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Star Rating Interaction
-    const starInputs = document.querySelectorAll('.star-rating input');
-    const ratingSubmit = document.getElementById('rating-submit');
-    const ratingForm = document.getElementById('rating-form');
-    
-    if (starInputs.length > 0) {
-        starInputs.forEach(input => {
-            input.addEventListener('change', function() {
-                // Enable the submit button when a rating is selected
-                if (ratingSubmit) {
-                    ratingSubmit.disabled = false;
-                }
-                
-                // Update visual display
-                const rating = this.value;
-                const labels = document.querySelectorAll('.star-rating label');
-                
-                labels.forEach((label, index) => {
-                    const starIcon = label.querySelector('i');
-                    if (index < 5 - rating) {
-                        starIcon.classList.remove('fas');
-                        starIcon.classList.add('far');
-                    } else {
-                        starIcon.classList.remove('far');
-                        starIcon.classList.add('fas');
-                    }
-                });
-            });
-            
-            // Hover effects
-            input.addEventListener('mouseover', function() {
-                const hoverRating = this.value;
-                const labels = document.querySelectorAll('.star-rating label');
-                
-                labels.forEach((label, index) => {
-                    const starIcon = label.querySelector('i');
-                    if (index < 5 - hoverRating) {
-                        starIcon.classList.remove('fas');
-                        starIcon.classList.add('far');
-                    } else {
-                        starIcon.classList.remove('far');
-                        starIcon.classList.add('fas');
-                    }
-                    starIcon.style.color = '#ffc107';
-                });
-            });
-            
-            input.addEventListener('mouseout', function() {
-                const checkedInput = document.querySelector('.star-rating input:checked');
-                const currentRating = checkedInput ? checkedInput.value : 0;
-                const labels = document.querySelectorAll('.star-rating label');
-                
-                labels.forEach((label, index) => {
-                    const starIcon = label.querySelector('i');
-                    if (index < 5 - currentRating) {
-                        starIcon.classList.remove('fas');
-                        starIcon.classList.add('far');
-                    } else {
-                        starIcon.classList.remove('far');
-                        starIcon.classList.add('fas');
-                    }
-                    starIcon.style.color = '';
-                });
-            });
-        });
-        
-        // Form submission handler
-        if (ratingForm) {
-            ratingForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const formData = new FormData(this);
-                const url = this.action;
-                
-                fetch(url, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Show success message
-                        const ratingSection = document.querySelector('.rating-section');
-                        ratingSection.innerHTML = `
-                            <div class="alert alert-success">
-                                <i class="fas fa-check-circle me-2"></i>
-                                Thank you for rating this teacher!
-                                <div class="mt-2">
-                                    ${generateStars(data.rating)}
-                                </div>
-                            </div>
-                        `;
-                        
-                        // Update the average rating display
-                        if (data.average_rating) {
-                            updateAverageRating(data.average_rating, data.total_ratings);
-                        }
-                    } else {
-                        alert('Error: ' + (data.message || 'Failed to submit rating'));
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while submitting your rating.');
-                });
-            });
-        }
-    }
-    
-    // Profile picture hover effect
-    const profilePicture = document.querySelector('.profile-picture');
-    if (profilePicture) {
-        profilePicture.addEventListener('mouseenter', function() {
-            this.style.transform = 'scale(1.05)';
-            this.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
-        });
-        
-        profilePicture.addEventListener('mouseleave', function() {
-            this.style.transform = '';
-            this.style.boxShadow = '';
-        });
-    }
-    
-    // Helper function to generate star HTML
-    function generateStars(rating) {
-        let stars = '';
-        for (let i = 1; i <= 5; i++) {
-            if (i <= rating) {
-                stars += '<i class="fas fa-star text-warning"></i>';
-            } else {
-                stars += '<i class="far fa-star text-warning"></i>';
-            }
-        }
-        return stars;
-    }
-    
-    // Helper function to update average rating display
-    function updateAverageRating(averageRating, totalRatings) {
-        const averageRatingEl = document.querySelector('.average-rating');
-        const starsEl = document.querySelector('.stars');
-        const ratingCountEl = document.querySelector('.text-muted.small');
-        
-        if (averageRatingEl) {
-            averageRatingEl.innerHTML = `
-                <span class="display-4 fw-bold">${averageRating}</span>
-                <span class="text-muted">/5</span>
-            `;
-        }
-        
-        if (starsEl) {
-            const fullStars = Math.floor(averageRating);
-            const hasHalfStar = (averageRating - fullStars) >= 0.5;
-            let starsHTML = '';
-            
-            for (let i = 1; i <= 5; i++) {
-                if (i <= fullStars) {
-                    starsHTML += '<i class="fas fa-star text-warning"></i>';
-                } else if (i === fullStars + 1 && hasHalfStar) {
-                    starsHTML += '<i class="fas fa-star-half-alt text-warning"></i>';
-                } else {
-                    starsHTML += '<i class="far fa-star text-warning"></i>';
-                }
-            }
-            
-            starsEl.innerHTML = starsHTML;
-        }
-        
-        if (ratingCountEl) {
-            ratingCountEl.textContent = `${totalRatings} ratings`;
-        }
-    }
-});
+// Profile picture hover effect
+const profilePicture = document.querySelector('.profile-picture');
+if(profilePicture){
+    profilePicture.addEventListener('mouseenter', ()=>{
+        profilePicture.style.transform='scale(1.05)';
+        profilePicture.style.boxShadow='0 5px 15px rgba(0,0,0,0.3)';
+    });
+    profilePicture.addEventListener('mouseleave', ()=>{
+        profilePicture.style.transform='';
+        profilePicture.style.boxShadow='';
+    });
+}
 </script>
 @endpush
 
 @push('styles')
 <style>
-    /* (Keep all the previous CSS styles from the earlier example) */
-    .teacher-profile-card {
-        border-radius: 1rem;
-        overflow: hidden;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    
-    /* ... (rest of the CSS remains the same) ... */
+.teacher-profile-card { border-radius:1rem; overflow:hidden; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.profile-picture-container .verification-badge { border-radius:50%; background:#fff; }
 </style>
 @endpush
 

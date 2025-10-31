@@ -34,6 +34,7 @@ Route::get('/', [TeacherController::class, 'index'])->name('teacher.index');
 Route::get("create", [TeacherProfileController::class,"create"])->name("teacher.create")->middleware(['auth', 'verified']);
 Route::post('/create', [TeacherProfileController::class, 'store'])->name('teacher.store');
 Route::get('/post', [TeacherController::class, 'post'])->name('post');
+Route::get('/autocomplete', [TeacherController::class, 'autocomplete'])->name('teacher.autocomplete');
 
 
 // TeacherProfileController

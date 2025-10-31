@@ -39,6 +39,28 @@ class TeacherController extends Controller
         return view('teacher.index', compact('teachers', 'universities', 'departments', 'university', 'department'));
     }
 
+    // For teacher search by name
+    public function autocomplete(Request $request)
+    {
+        $q = $request->get('q', '');
+        $teachers = Teacher::where('name', 'like', "%{$q}%")
+                    ->select('id','name')
+                    ->limit(10)
+                    ->get();
+        
+        $result = $teachers->map(function($teacher) {
+            return [
+                'id' => $teacher->id,
+                'name' => $teacher->name,
+                'profile_picture' => asset('uploads/teacherprofile/' . $teacher->profile_pic)
+            ];
+        });
+
+        return response()->json($result);
+
+    }
+
+
     // public function rate(Request $request, $id){
     //     // Ensure the user is logged in
     //     if (!auth()->check()) {
